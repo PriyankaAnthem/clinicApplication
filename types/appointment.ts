@@ -9,7 +9,7 @@ export interface Appointment {
   patientPhone: string
    healthConcern?: string
   status?: "Pending" | "Approved" | "Rejected" | "Rescheduled"
- // status: 'Pending' | 'Approved' | 'Rejected' | "Rescheduled"; 
+
   rescheduledDate?: string;
   rescheduledTimeSlot?: string;
 }

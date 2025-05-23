@@ -123,55 +123,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 }, [token]);*/
 
 
-
-
-
-/*const fetchCurrentUser = async () => {
-  setLoadingUser(true);
-
-  const tokenFromCookies = getAuthTokenFromCookies(); // Assuming you have this function in scope
-  console.log("🔐 Token from cookies in fetchCurrentUser:", tokenFromCookies);
-
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/users/profile`,
-      {
-        method: "GET",
-        credentials: "include", // Include cookies
-      }
-    );
-    const raw = await res.json(); // No need to clone
-    console.log("📥 Raw response from /api/users/profile:", raw);
-
-    if (res.ok) {
-      const user = raw.user || raw;
-      setCurrentUser({
-        id: user._id || user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
-      setIsAdmin(user.role === "admin");
-      setIsDoctor(user.role === "doctor");
-    } else {
-      console.log("❌ Failed to fetch user:", res.statusText);
-      setCurrentUser(null);
-      setIsAdmin(false);
-      setIsDoctor(false);
-    }
-  } catch (error) {
-    console.error("❌ Error fetching profile:", error);
-    setCurrentUser(null);
-    setIsAdmin(false);
-    setIsDoctor(false);
-  } finally {
-    setLoadingUser(false);
-  }
-};
-*/
-
-
-
 useEffect(() => {
   if (!currentUser) {
     fetchCurrentUser();
@@ -254,36 +205,6 @@ const fetchDoctors = async (): Promise<Doctor[] | null> => {
 };
 
 
- /* const fetchDoctors = async (): Promise<Doctor[] | null> => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/doctors`,
-        {
-          method: "GET",
-          credentials: "include", // Keep it if cookies/session involved
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        toast({
-          title: "Error Fetching Doctors",
-          description: errorData.message || "Failed to load doctors",
-          variant: "destructive",
-        });
-        return null;
-      }
-      const doctors: Doctor[] = await response.json();
-      return doctors;
-    } catch (error: any) {
-      console.error("Error fetching doctors:", error);
-      toast({
-        title: "Error",
-        description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
-      });
-      return null;
-    }
-  };*/
 
 
 const login = async (email: string, password: string, isAdminLogin = false) => {
@@ -772,53 +693,6 @@ const updateDoctor = async (
 
 
 
-
- /*const fetchAppointments = async () => {
-    try {
-      const token = getAuthTokenFromCookies(); // Get token from cookies
-
-      if (!token) {
-        throw new Error("Authorization token missing. Please log in again.");
-      }
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/appointments/`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, //Pass token in Authorization header
-          },
-          credentials: "include", //  Send cookies if needed
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-
-        const mappedAppointments = data.map((appointment: any) => ({
-          id: appointment._id,
-          doctorId: appointment.doctor?._id || "",
-          doctorName: appointment.doctor?.name || "",
-          date: appointment.date,
-          timeSlot: appointment.timeSlot,
-          patientName: appointment.patient?.name || "",
-          patientEmail: appointment.patient?.email || "",
-          patientPhone: appointment.patient?.phone || "",
-        }));
-
-        setAppointments(mappedAppointments);
-        console.log("Fetched and mapped appointments:", mappedAppointments);
-      } else {
-        throw new Error("Failed to fetch appointments");
-      }
-    } catch (error: any) {
-      setError(error.message);
-      console.error("Error fetching appointments:", error);
-    } finally {
-      setLoadingAppointments(false);
-    }
-  };*/
 
 
 const fetchAppointments = async () => {

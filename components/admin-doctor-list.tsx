@@ -20,6 +20,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAppContext } from "@/context/app-context"
 import type { Doctor } from "@/types/doctor"
+import type {Appointment}  from "@/types/appointment"
 
 // Define the form schema with Zod
 const doctorFormSchema = z.object({
@@ -44,10 +45,10 @@ export function AdminDoctorList() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [showPassword, setShowPassword] = useState(false); 
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
-  const { toast } = useToast()
-
-
-
+ const [selectedDoctorAppointments, setSelectedDoctorAppointments] = useState([]);
+const [isAppointmentDialogOpen, setIsAppointmentDialogOpen] = useState(false);
+const [selectedDoctorName, setSelectedDoctorName] = useState<string>(''); // <- 🔹 Explicit type annotation added
+const { toast } = useToast()
 
 
 
@@ -60,27 +61,6 @@ export function AdminDoctorList() {
       password: "",
     },
   });
-
-
-
-
-/*useEffect(() => {
-  if (!token) return; // Wait for token to be set
-
-  const loadDoctors = async () => {
-    try {
-      const doctors = await fetchDoctors(token); // Pass token here
-      if (doctors) {
-        setDoctors(doctors);
-      }
-    } catch (error) {
-      console.error("Failed to load doctors:", error);
-    }
-  };
-
-  loadDoctors();
-}, [token]); //Run effect again whenever token <changes></changes>*/
-
 
 
 useEffect(() => {
@@ -120,6 +100,24 @@ useEffect(() => {
     setSelectedDoctor(doctor)
     setIsDeleteDialogOpen(true)
   }
+
+
+  // Handler to fetch appointments:
+const handleViewAppointments = async (doctor: { _id: string; name: string }) => {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/${doctor._id}`, {
+      credentials: 'include'
+    });
+    const data = await res.json();
+    setSelectedDoctorAppointments(data);
+    setSelectedDoctorName(doctor.name);
+    setIsAppointmentDialogOpen(true);
+  } catch (error) {
+    console.error('Failed to fetch appointments', error);
+  }
+};
+
+
 const onAddSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
   console.log("Add Doctor form submitted", values);
 
@@ -158,7 +156,6 @@ const onAddSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
       status: "error",
     });
   }
-
   setIsAddDialogOpen(false);
 };
 
@@ -216,6 +213,32 @@ const onEditSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
     }
   }
 
+
+  // CSV Export Function:
+  const exportToCSV = (appointments: any[], doctorName: string) => { // <- 🔹 doctorName type explicitly added
+  const headers = ['Patient Name', 'Date', 'Time', 'Status'];
+  const rows = appointments.map(a => [
+    a.patientName,
+    new Date(a.date).toLocaleDateString(),
+    a. timeSlot,
+    a.status
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map(e => e.join(','))
+    .join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${doctorName.replace(/\s+/g, '_')}_appointments.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -241,6 +264,10 @@ const onEditSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
               <Button variant="outline" size="icon" onClick={() => handleDeleteClick(doctor)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
+             <Button variant="outline" onClick={() => handleViewAppointments(doctor)}>
+  View Appointments
+</Button>
+
             </CardFooter>
           </Card>
         ))}
@@ -329,7 +356,6 @@ const onEditSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
     </FormItem>
   )}
 />
-
               <DialogFooter>
                 <Button type="submit">Add Doctor</Button>
               </DialogFooter>
@@ -434,6 +460,47 @@ const onEditSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+       {/* Dialog for viewing appointments */}
+   <Dialog open={isAppointmentDialogOpen} onOpenChange={setIsAppointmentDialogOpen}>
+  <DialogContent className="max-h-[80vh] overflow-y-auto">
+    <DialogHeader>
+      <DialogTitle>Appointments for {selectedDoctorName}</DialogTitle>
+    </DialogHeader>
+    <div className="space-y-2">
+      {selectedDoctorAppointments.length === 0 ? (
+        <p>No appointments found.</p>
+      ) : (
+        <>
+          <table className="w-full text-sm text-left border">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-2 border">Patient</th>
+                <th className="p-2 border">Date</th>
+                <th className="p-2 border">Time</th>
+                <th className="p-2 border">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedDoctorAppointments.map((a, index) => (
+                <tr key={index}>
+                  <td className="p-2 border">{a.patientName}</td>
+                  <td className="p-2 border">{new Date(a.date).toLocaleDateString()}</td>
+                  <td className="p-2 border">{a. timeSlot}</td>
+                  <td className="p-2 border">{a.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <Button onClick={() => exportToCSV(selectedDoctorAppointments, selectedDoctorName)}>
+            Export to CSV
+          </Button>
+        </>
+      )}
+    </div>
+  </DialogContent>
+</Dialog>
+
     </div>
   )
 }

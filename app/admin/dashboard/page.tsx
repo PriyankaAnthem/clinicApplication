@@ -30,6 +30,11 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
+
+      <h2 className="text-2xl font-semibold mt-2">
+  Welcome{currentUser ? `, ${currentUser.name}` : ""}
+</h2>
+
      
       <Tabs defaultValue="doctors">
         <TabsList className="mb-6">

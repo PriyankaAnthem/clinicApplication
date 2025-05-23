@@ -36,6 +36,12 @@ export default function DoctorDashboardPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
+
+     <h2 className="text-2xl font-semibold mb-4">
+  Welcome{currentUser ? `, ${currentUser.name}` : ""}
+</h2>
+
+
       <Tabs defaultValue="appointments">
         <TabsList className="mb-6">
           <TabsTrigger value="appointments">My Appointments</TabsTrigger>

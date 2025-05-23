@@ -105,7 +105,7 @@ useEffect(() => {
   // Handler to fetch appointments:
 const handleViewAppointments = async (doctor: { _id: string; name: string }) => {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/${doctor._id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/doctor-appointments/${doctor._id}`, {
       credentials: 'include'
     });
     const data = await res.json();

@@ -36,8 +36,6 @@ export default function DoctorDashboardPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">Doctor Dashboard</h1>
-
       <Tabs defaultValue="appointments">
         <TabsList className="mb-6">
           <TabsTrigger value="appointments">My Appointments</TabsTrigger>

@@ -49,7 +49,7 @@ export default function LoginPage() {
           title: "Login successful",
           description: "You are now logged in.",
         });
-        router.push("/");
+        router.push("/appointments");
       } else {
         toast({
           title: "Login failed",
@@ -71,74 +71,82 @@ export default function LoginPage() {
   
   return (
     <div className="container mx-auto py-16 px-4 flex justify-center">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl text-center">Log In</CardTitle>
-          <CardDescription className="text-center">Log in to your HealthCare Clinic account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-             
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="john.doe@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
- {/* Password */}
-              <FormField
-  control={form.control}
-  name="password"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Password</FormLabel>
-      <div className="relative">
-        <FormControl>
-          <Input
-            placeholder="Password"
-            type={showPassword ? "text" : "password"} 
-            {...field}
+  <Card className="w-full max-w-md">
+    <CardHeader>
+      <CardTitle className="text-2xl text-center">Log In</CardTitle>
+      <CardDescription className="text-center">Log in to your HealthCare Clinic account</CardDescription>
+    </CardHeader>
+    <CardContent>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+         
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="john.doe@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-        </FormControl>
-        {/* Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setShowPassword((prev) => !prev)}
-          className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
-          tabIndex={-1} // Prevents accidental focus while tabbing
-        >
-          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-        </button>
-      </div>
-      <FormMessage />
-    </FormItem>
-  )}
-/>  
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Log In"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <p className="text-sm text-gray-500">
-            Don't have an account?{" "}
-            <Link href="/auth/signup" className="text-blue-600 hover:underline">
-              Sign up
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+          {/* Password */}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Password</FormLabel>
+                <div className="relative">
+                  <FormControl>
+                    <Input
+                      placeholder="Password"
+                      type={showPassword ? "text" : "password"} 
+                      {...field}
+                    />
+                  </FormControl>
+                  {/* Toggle Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-3 flex items-center text-muted-foreground"
+                    tabIndex={-1} // Prevents accidental focus while tabbing
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+                <FormMessage />
+
+                {/* Forgot Password Link */}
+                <div className="text-right mt-2">
+                  <Link href="/auth/forgotPassword" className="text-sm text-blue-600 hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div>
+              </FormItem>
+            )}
+          />  
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Log In"}
+          </Button>
+        </form>
+      </Form>
+    </CardContent>
+    <CardFooter className="flex flex-col space-y-4">
+      <p className="text-sm text-gray-500">
+        Don't have an account?{" "}
+        <Link href="/auth/signup" className="text-blue-600 hover:underline">
+          Sign up
+        </Link>
+      </p>
+    </CardFooter>
+  </Card>
+</div>
+
   )
 }

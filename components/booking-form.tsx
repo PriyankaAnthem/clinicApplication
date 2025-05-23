@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { useForm } from "react-hook-form"
@@ -37,6 +38,11 @@ const formSchema = z.object({
   patientPhone: z.string().min(10, {
     message: "Please enter a valid phone number",
   }),
+  healthConcern: z
+  .string()
+  .min(10, { message: "Please describe your concern in more detail (min 10 characters)." })
+  .max(500, { message: "Please keep it under 500 characters." }),
+
 })
 
 export function BookingForm() {
@@ -72,6 +78,7 @@ export function BookingForm() {
       patientName: "",
       patientEmail: "",
       patientPhone: "",
+      healthConcern: "",
     },
   })
 
@@ -135,6 +142,7 @@ export function BookingForm() {
         patientName: values.patientName,
         patientEmail: currentUser?.email || values.patientEmail,
         patientPhone: values.patientPhone,
+         healthConcern: values.healthConcern,
       };
     
       const result = await addAppointment(newAppointment); // await the addAppointment
@@ -163,155 +171,184 @@ export function BookingForm() {
 
   return (
     <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="doctorId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Select Doctor</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a doctor" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {doctors.map((doctor) => (
-                      <SelectItem key={doctor._id} value={doctor._id}>
-                        {doctor.name} - {doctor.specialty}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+     <Form {...form}>
+  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <FormField
+      control={form.control}
+      name="doctorId"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Select Doctor</FormLabel>
+          <Select onValueChange={field.onChange} value={field.value}>
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a doctor" />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {doctors.map((doctor) => (
+                <SelectItem key={doctor._id} value={doctor._id}>
+                  {doctor.name} - {doctor.specialty}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
 
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <FormField
+        control={form.control}
+        name="date"
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Appointment Date</FormLabel>
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                  >
+                    {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  disabled={(date) =>
+                    date < new Date(new Date().setHours(0, 0, 0, 0)) || date.getDay() === 0
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Appointment Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
-                        >
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={
-                          (date) => date < new Date(new Date().setHours(0, 0, 0, 0)) || date.getDay() === 0 // Disable Sundays
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="timeSlot"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Time Slot</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a time" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {availableTimeSlots.length > 0 ? (
-                        availableTimeSlots.map((slot) => (
-                          <SelectItem key={slot} value={slot}>
-                            {slot}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="none" disabled>
-                          {selectedDoctor && selectedDate ? "No available slots" : "Select doctor and date first"}
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Patient Information</h3>
-
-            <FormField
-              control={form.control}
-              name="patientName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="patientEmail"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="john.doe@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+      <FormField
+        control={form.control}
+        name="timeSlot"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Time Slot</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a time" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {availableTimeSlots.length > 0 ? (
+                  availableTimeSlots.map((slot) => (
+                    <SelectItem key={slot} value={slot}>
+                      {slot}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="none" disabled>
+                    {selectedDoctor && selectedDate ? "No available slots" : "Select doctor and date first"}
+                  </SelectItem>
                 )}
-              />
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
 
-              <FormField
-                control={form.control}
-                name="patientPhone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="(555) 123-4567" {...field} maxLength={10} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium">Patient Information</h3>
 
-          <Button type="submit" className="w-full">
-            Book Appointment
-          </Button>
-        </form>
-      </Form>
+      <FormField
+        control={form.control}
+        name="patientName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Full Name</FormLabel>
+            <FormControl>
+              <Input placeholder="John Doe" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <FormField
+          control={form.control}
+          name="patientEmail"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="john.doe@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="patientPhone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="(555) 123-4567"
+                  {...field}
+                  maxLength={10}
+                  onKeyDown={(e) => {
+                    const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab', 'Delete'];
+                    if (!/^\d$/.test(e.key) && !allowedKeys.includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
+
+      {/* ✅ New Health Concern Field */}
+      <FormField
+        control={form.control}
+        name="healthConcern"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Health Concern</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Describe your symptoms or concerns"
+                className="min-h-[100px]"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </div>
+
+    <Button type="submit" className="w-full">
+      Book Appointment
+    </Button>
+  </form>
+</Form>
+
     </div>
   )
 }

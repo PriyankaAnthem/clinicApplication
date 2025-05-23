@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { format, isSameDay, parseISO } from "date-fns";
 import { toast } from "@/hooks/use-toast";
-import { format } from "date-fns";
-import { Clock, User } from "lucide-react";
+import { Clock, User, CalendarIcon, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,8 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useAppContext } from "@/context/app-context";
 import type { Appointment } from "@/types/appointment";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 export function DoctorAppointmentList() {
   const {
@@ -33,6 +37,9 @@ export function DoctorAppointmentList() {
   const [newTimeSlot, setNewTimeSlot] = useState("");
   const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
 
+  const [statusFilter, setStatusFilter] = useState("");
+  const [searchDate, setSearchDate] = useState<Date | null>(null);
+
   useEffect(() => {
     if (!currentUser?.id || !isDoctor) return;
     fetchDoctorAppointments();
@@ -40,7 +47,7 @@ export function DoctorAppointmentList() {
 
   const handleStatusChange = async (
     appointmentId: string,
-    status: "approved" | "rejected"
+    status: "Approved" | "Rejected"
   ) => {
     try {
       await updateAppointmentStatus(appointmentId, status, token);
@@ -86,11 +93,19 @@ export function DoctorAppointmentList() {
     return <div>Loading appointments...</div>;
   }
 
-  if (!DoctorAppointments.length) {
-    return <div>No appointments found for you.</div>;
-  }
+  const filteredAppointments = DoctorAppointments.filter((appointment) => {
+    const matchesStatus = statusFilter
+      ? appointment.status.toLowerCase().includes(statusFilter.toLowerCase())
+      : true;
 
-  const sortedAppointments = [...DoctorAppointments].sort((a, b) => {
+    const matchesDate = searchDate
+      ? isSameDay(new Date(appointment.date), searchDate)
+      : true;
+
+    return matchesStatus && matchesDate;
+  });
+
+  const sortedAppointments = [...filteredAppointments].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
     if (dateA !== dateB) return dateA - dateB;
@@ -99,63 +114,109 @@ export function DoctorAppointmentList() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6">My Appointments</h2>
+      <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
+       <div className="relative w-64">
+  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+  <Input
+    placeholder="Search by status"
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+    className="pl-8"  // add left padding to make room for icon
+  />
+</div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {sortedAppointments.map((appointment) => (
-          <Card key={appointment.id}>
-            <CardHeader>
-              <CardTitle>{appointment.patientName}</CardTitle>
-              <CardDescription>
-                {format(new Date(appointment.date), "EEEE, MMMM d, yyyy")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                  <span>{appointment.timeSlot}</span>
-                </div>
-                <div className="flex items-center">
-                  <User className="h-4 w-4 mr-2 text-gray-500" />
-                  <span>{appointment.patientEmail}</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Status:{" "}
-                  <span className="font-medium">{appointment.status}</span>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-2">
-              {appointment.status === "pending" && (
-                <div className="flex gap-3 w-full">
-                  <Button
-                    className="w-full bg-green-500 hover:bg-green-600"
-                    onClick={() => handleStatusChange(appointment.id, "approved")}
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    className="w-full bg-red-500 hover:bg-red-600"
-                    onClick={() => handleStatusChange(appointment.id, "rejected")}
-                  >
-                    Reject
-                  </Button>
-                </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant={"outline"}
+              className={cn(
+                "w-[260px] justify-start text-left font-normal",
+                !searchDate && "text-muted-foreground"
               )}
-              <Button
-                className="w-full bg-blue-500 hover:bg-blue-600"
-                onClick={() => {
-                  setRescheduleData(appointment);
-                  setIsRescheduleOpen(true);
-                }}
-              >
-                Reschedule
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {searchDate ? format(searchDate, "PPP") : "Filter by date"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+       <Calendar
+  mode="single"
+  selected={searchDate ?? undefined}
+  onSelect={setSearchDate}
+  initialFocus
+/>
+
+          </PopoverContent>
+        </Popover>
+        {searchDate && (
+          <Button
+            variant="ghost"
+            onClick={() => setSearchDate(null)}
+            className="text-sm text-red-500"
+          >
+            Clear Date Filter
+          </Button>
+        )}
       </div>
+
+      {sortedAppointments.length === 0 ? (
+        <div>No appointments found.</div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {sortedAppointments.map((appointment) => (
+            <Card key={appointment.id}>
+              <CardHeader>
+                <CardTitle>{appointment.patientName}</CardTitle>
+                <CardDescription>
+                  {format(new Date(appointment.date), "EEEE, MMMM d, yyyy")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                    <span>{appointment.timeSlot}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-2 text-gray-500" />
+                    <span>{appointment.patientEmail}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    Status: <span className="font-medium">{appointment.status}</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col gap-2">
+                {appointment.status === "Pending" && (
+                  <div className="flex gap-3 w-full">
+                    <Button
+                      className="w-full bg-green-500 hover:bg-green-600"
+                      onClick={() => handleStatusChange(appointment.id, "Approved")}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      className="w-full bg-red-500 hover:bg-red-600"
+                      onClick={() => handleStatusChange(appointment.id, "Rejected")}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                )}
+                <Button
+                  className="w-full bg-blue-500 hover:bg-blue-600"
+                  onClick={() => {
+                    setRescheduleData(appointment);
+                    setIsRescheduleOpen(true);
+                  }}
+                >
+                  Reschedule
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Reschedule Modal */}
       {isRescheduleOpen && rescheduleData && (
@@ -178,6 +239,14 @@ export function DoctorAppointmentList() {
               className="w-full mb-4 border p-2"
               value={newTimeSlot}
               onChange={(e) => setNewTimeSlot(e.target.value)}
+              onBlur={(e) => {
+                const value = e.target.value.trim();
+                const regex = /^(0?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/i;
+                if (!regex.test(value)) {
+                  alert("Please enter a valid time format like 3:00 PM");
+                  setNewTimeSlot('');
+                }
+              }}
             />
 
             <div className="flex justify-end gap-2">

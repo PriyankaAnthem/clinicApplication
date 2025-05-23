@@ -140,7 +140,7 @@ const onAddSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
     if (result?.success && result?.doctor) {
       toast({
         title: "Doctor Added",
-        description: `${result.doctor.name} has been added to the system.`,
+        description: `${result.doctor.name}  has been successfully added and an email has been sent to ${result.doctor.email}.`,
         variant: "default",
       });
     } else {
@@ -270,7 +270,6 @@ const onEditSubmit = async (values: z.infer<typeof doctorFormSchema>) => {
                   </FormItem>
                 )}
               />
-
               {/* Specialty */}
               <FormField
                 control={form.control}

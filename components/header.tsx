@@ -75,49 +75,70 @@ export function Header() {
                 >
                   Dashboard
                 </Link>
-                <Link
-                  href="/doctors/appointments"
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive("/doctors/appointments") ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                  }`}
-                >
-                  My Appointments
-                </Link>
+                
               </>
             ) : (
               <>
-                <Link
-                  href="/"
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive("/") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/book"
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive("/book") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  Book Appointment
-                </Link>
-                <Link
-                  href="/appointments"
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive("/appointments") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  View Appointments
-                </Link>
-                <Link
-                  href="/about"
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    isActive("/about") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  About
-                </Link>
+                {!loadingUser && (
+                  <>
+                    {!currentUser ? (
+                      <>
+                        <Link
+                          href="/"
+                          className={`px-3 py-2 rounded-md text-sm font-medium ${
+                            isActive("/") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          Home
+                        </Link>
+                        <Link
+                          href="/about"
+                          className={`px-3 py-2 rounded-md text-sm font-medium ${
+                            isActive("/about") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          About
+                        </Link>
+                        <Link
+                          href="/auth/login"
+                          className={`px-3 py-2 rounded-md text-sm font-medium ${
+                            isActive("/auth/login") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          Log in
+                        </Link>
+                        <Link
+                          href="/auth/signup"
+                          className={`px-3 py-2 rounded-md text-sm font-medium ${
+                            isActive("/auth/signup") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          Sign up
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/book"
+                          className={`px-3 py-2 rounded-md text-sm font-medium ${
+                            isActive("/book") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          Book Appointment
+                        </Link>
+                        <Link
+                          href="/appointments"
+                          className={`px-3 py-2 rounded-md text-sm font-medium ${
+                            isActive("/appointments") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                        >
+                          View Appointments
+                        </Link>
+                        {/* Log out handled separately */}
+                      </>
+                    )}
+                  </>
+                )}
               </>
             )}
 
@@ -151,26 +172,7 @@ export function Header() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : (
-                  <div className="flex space-x-2">
-                    <Link
-                      href="/auth/login"
-                      className={`px-3 py-2 rounded-md text-sm font-medium ${
-                        isActive("/auth/login") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      Log in
-                    </Link>
-                    <Link
-                      href="/auth/signup"
-                      className={`px-3 py-2 rounded-md text-sm font-medium ${
-                        isActive("/auth/signup") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      Sign up
-                    </Link>
-                  </div>
-                )}
+                ) : null}
               </>
             )}
           </nav>
@@ -195,17 +197,15 @@ export function Header() {
         <div className={`md:hidden ${isAdminSection || isDoctorSection ? "bg-gray-800" : "bg-white shadow-lg"}`}>
           <div className="px-2 pt-2 pb-3 space-y-1">
             {isAdminSection ? (
-              <>
-                <Link
-                  href="/admin/dashboard"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/admin/dashboard") ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  Dashboard
-                </Link>
-              </>
+              <Link
+                href="/admin/dashboard"
+                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                  isActive("/admin/dashboard") ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-700 hover:text-white"
+                }`}
+                onClick={closeMenu}
+              >
+                Dashboard
+              </Link>
             ) : isDoctorSection ? (
               <>
                 <Link
@@ -229,98 +229,86 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link
-                  href="/"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/book"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/book") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  Book Appointment
-                </Link>
-                <Link
-                  href="/appointments"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/appointments") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  View Appointments
-                </Link>
-                <Link
-                  href="/about"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/about") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  About
-                </Link>
+                {!loadingUser && (
+                  <>
+                    {!currentUser ? (
+                      <>
+                        <Link
+                          href="/"
+                          className={`block px-3 py-2 rounded-md text-base font-medium ${
+                            isActive("/") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                          onClick={closeMenu}
+                        >
+                          Home
+                        </Link>
+                        <Link
+                          href="/about"
+                          className={`block px-3 py-2 rounded-md text-base font-medium ${
+                            isActive("/about") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                          onClick={closeMenu}
+                        >
+                          About
+                        </Link>
+                        <Link
+                          href="/auth/login"
+                          className={`block px-3 py-2 rounded-md text-base font-medium ${
+                            isActive("/auth/login") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                          onClick={closeMenu}
+                        >
+                          Log in
+                        </Link>
+                        <Link
+                          href="/auth/signup"
+                          className={`block px-3 py-2 rounded-md text-base font-medium ${
+                            isActive("/auth/signup") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                          onClick={closeMenu}
+                        >
+                          Sign up
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/book"
+                          className={`block px-3 py-2 rounded-md text-base font-medium ${
+                            isActive("/book") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                          onClick={closeMenu}
+                        >
+                          Book Appointment
+                        </Link>
+                        <Link
+                          href="/appointments"
+                          className={`block px-3 py-2 rounded-md text-base font-medium ${
+                            isActive("/appointments") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
+                          }`}
+                          onClick={closeMenu}
+                        >
+                          View Appointments
+                        </Link>
+                        {/* Log out button/menu below */}
+                      </>
+                    )}
+                  </>
+                )}
               </>
             )}
 
+            {/* Logout in mobile menu */}
             {!loadingUser && currentUser && (
-              <>
-                {isAdmin && !isAdminSection && (
-                  <Link
-                    href="/admin/dashboard"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
-                    onClick={closeMenu}
-                  >
-                    Admin Dashboard
-                  </Link>
-                )}
-                {isDoctor && !isDoctorSection && (
-                  <Link
-                    href="/doctors/dashboard"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
-                    onClick={closeMenu}
-                  >
-                    Doctor Portal
-                  </Link>
-                )}
-                <button
-                  className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
-                  onClick={() => {
-                    handleLogout()
-                    closeMenu()
-                  }}
-                >
-                  Log out
-                </button>
-              </>
-            )}
-
-            {!loadingUser && !currentUser && (
-              <>
-                <Link
-                  href="/auth/login"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/auth/login") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className={`block px-3 py-2 rounded-md text-base font-medium ${
-                    isActive("/auth/signup") ? "bg-blue-100 text-blue-700" : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={closeMenu}
-                >
-                  Sign up
-                </Link>
-              </>
+              <button
+                onClick={() => {
+                  handleLogout()
+                  closeMenu()
+                }}
+                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-100"
+              >
+                Log out
+              </button>
             )}
           </div>
         </div>

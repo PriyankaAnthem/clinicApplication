@@ -44,20 +44,19 @@ const ResetPassword = () => {
 
   try {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/resetPassword/${token}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/users/resetPassword/${token}`,
       { newPassword: values.newPassword }
     );
-
+ console.log("Password reset successful:", response.data);
  toast.success('TEST: Password reset success');
 await new Promise((resolve) => setTimeout(resolve, 3000));
-router.push('/doctors/login');
+router.push('/auth/login');
   } catch (error: any) {
     toast.error(error?.response?.data?.message || 'Your link has expired');
+     console.error("Error resetting password:", error.response?.data || error.message);
   }
 }
-
   });
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-6">
       <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
@@ -136,7 +135,7 @@ router.push('/doctors/login');
           <button
             type="button"
             className="w-full py-2 bg-gray-200 text-blue-600 rounded-lg hover:bg-gray-300 transition duration-300"
-            onClick={() => router.push('/doctors/login')}
+            onClick={() => router.push('/auth/login')}
           >
             Back to Login
           </button>

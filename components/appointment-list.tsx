@@ -128,16 +128,19 @@ export function AppointmentList() {
                   <div className="flex items-center text-sm font-medium mt-2">
                     <span className="mr-2 text-gray-600">Status:</span>
                     <span
-                      className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                        appointment.status === "approved"
-                          ? "bg-green-100 text-green-800"
-                          : appointment.status === "rejected"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {appointment.status}
-                    </span>
+  className={`px-2 py-0.5 rounded text-xs font-semibold ${
+    appointment.status === "Approved"
+      ? "bg-green-100 text-green-800"
+      : appointment.status === "Rejected"
+      ? "bg-red-100 text-red-800"
+      : appointment.status === "Rescheduled"
+      ? "bg-blue-100 text-blue-600"
+      : "bg-yellow-100 text-yellow-800" // for pending and any other status fallback
+  }`}
+>
+  {appointment.status}
+</span>
+
                   </div>
                 </div>
               </CardContent>

@@ -543,11 +543,11 @@ const addDoctor = async (doctor: Doctor) => {
 
     setDoctors((prevDoctors) => [...prevDoctors, data]);
 
-    toast({
-      title: "Doctor Created",
-      description: `${data.name} has been successfully added.`,
-      variant: "default",
-    });
+toast({
+  title: "Doctor Created",
+  description: `${data.name} has been successfully added and an email has been sent to ${data.email}.`,
+  variant: "default",
+});
 
     return { success: true, doctor: data };
   } catch (error: any) {
@@ -565,7 +565,7 @@ const addDoctor = async (doctor: Doctor) => {
   // Update doctor with authentication token
  
 const updateDoctor = async (
-  id: string,
+  _id: string,
   updatedFields: {
     name?: string;
     specialty?: string;
@@ -573,11 +573,11 @@ const updateDoctor = async (
     password?: string;
   }
 ) => {
-  console.log("Calling updateDoctor with:", id, updatedFields);
+  console.log("Calling updateDoctor with:", _id, updatedFields);
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/${_id}`,
       {
         method: "PATCH",
         headers: {
@@ -596,7 +596,7 @@ const updateDoctor = async (
 
     setDoctors((prevDoctors) =>
       prevDoctors.map((doctor) =>
-        doctor._id === id ? { ...doctor, ...updatedFields } : doctor
+        doctor._id === _id ? { ...doctor, ...updatedFields } : doctor
       )
     );
 
@@ -621,10 +621,10 @@ const updateDoctor = async (
 
 
 
-  const deleteDoctor = async (id: string) => {
+  const deleteDoctor = async (_id: string) => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/${id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/doctors/${_id}`,
       {
         method: "DELETE",
         credentials: "include", // send cookie automatically
@@ -643,7 +643,7 @@ const updateDoctor = async (
     }
 
     setDoctors((prevDoctors) =>
-      prevDoctors.filter((doctor) => doctor._id !== id)
+      prevDoctors.filter((doctor) => doctor._id !== _id)
     );
 
     toast({
@@ -669,7 +669,8 @@ const updateDoctor = async (
       !appointment.timeSlot ||
       !appointment.patientName ||
       !appointment.patientEmail ||
-      !appointment.patientPhone
+      !appointment.patientPhone ||
+      !appointment.healthConcern
     ) {
       toast({
         title: "Missing Details",
@@ -850,7 +851,7 @@ const fetchAppointments = async () => {
       patientName: appointment.patient?.name || "",
       patientEmail: appointment.patient?.email || "",
       patientPhone: appointment.patient?.phone || "",
-      status: appointment.status ?? "pending",
+      status: appointment.status ?? "Pending",
     }));
 
     setAppointments(mappedAppointments);
@@ -894,7 +895,7 @@ const fetchAppointments = async () => {
             patientName: appointment.patient?.name ?? "",
             patientEmail: appointment.patient?.email ?? "",
             patientPhone: appointment.patient?.phone ?? "",
-            status: appointment.status ?? "pending",
+            status: appointment.status ?? "Pending",
           }))
         : [];
 
@@ -959,7 +960,7 @@ const fetchAppointments = async () => {
 
   const updateAppointmentStatus = async (
     appointmentId: string,
-    status: "approved" | "rejected",
+    status: "Approved" | "Rejected",
     token: string
   ) => {
     try {
@@ -987,7 +988,54 @@ const fetchAppointments = async () => {
     }
   };
 
+
   const rescheduleAppointment = (
+  id: string,
+  date: string,
+  timeSlot: string,
+  token: string
+): Promise<void> => {
+  return fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/appointments/reschedule/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ date, timeSlot }),
+    credentials: "include",
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Reschedule failed:", {
+          status: response.status,
+          message: errorData?.message,
+          fullError: errorData,
+        });
+        throw new Error(errorData?.message || "Failed to reschedule appointment");
+      }
+
+      console.log("Reschedule successful:", { id, date, timeSlot });
+
+      toast({
+        title: "Success",
+        description: "Appointment rescheduled successfully.",
+      });
+
+      fetchAppointmentsById();
+      fetchDoctorAppointments();
+    })
+    .catch((error) => {
+      console.error("Error rescheduling appointment:", error);
+      toast({
+        title: "Error",
+        description: "Could not reschedule appointment.",
+        variant: "destructive",
+      });
+    });
+};
+
+
+ /* const rescheduleAppointment = (
     id: string,
     date: string,
     timeSlot: string,
@@ -1020,7 +1068,7 @@ const fetchAppointments = async () => {
           variant: "destructive",
         });
       });
-  };
+  };*/
   
   const contextValue: AppContextType = {
     doctors,

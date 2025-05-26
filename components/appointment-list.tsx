@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog"
 import { useAppContext } from "@/context/app-context"
 import { toast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 import type { Appointment } from "@/types/appointment"
 
 export function AppointmentList() {
@@ -29,17 +30,23 @@ export function AppointmentList() {
     fetchAppointmentsById,
     appointments,
     cancelAppointment,
-    currentUser
+    currentUser,
+    loadingUser,
   } = useAppContext()
 
   const [appointmentToCancel, setAppointmentToCancel] = useState<Appointment | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const router = useRouter()
 
-  useEffect(() => {
-    if (currentUser) {
-      fetchAppointmentsById()
-    }
-  }, [currentUser])
+useEffect(() => {
+  if (loadingUser) return;
+
+  if (!currentUser) {
+    router.replace("/auth/login");
+  } else {
+    fetchAppointmentsById();
+  }
+}, [currentUser, loadingUser]);
 
   const userAppointments = appointments.filter(
     (appointment) =>

@@ -4,5 +4,6 @@ export interface User {
   id:string //added later
   name: string
   email: string
-  role: "patient" | "admin"
+  role: "patient" | "admin"  | "doctor" 
+   
 }

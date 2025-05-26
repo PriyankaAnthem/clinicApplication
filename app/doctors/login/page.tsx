@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,11 +23,12 @@ const formSchema = z.object({
 })
 
 export default function DoctorLoginPage() {
-  const { loginDoctor } = useAppContext()
+  const { loginDoctor,currentUser,loadingUser } = useAppContext()
   const [isLoading, setIsLoading] = useState(false)
    const [showPassword, setShowPassword] = useState(false); 
   const router = useRouter()
   const { toast } = useToast()
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,6 +38,31 @@ export default function DoctorLoginPage() {
     },
   })
 
+
+  useEffect(() => {
+    if (!loadingUser && currentUser) {
+      if (currentUser.role === "doctor") {
+        router.replace("/doctors/dashboard");
+      } else if (currentUser.role === "admin") {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/appointments"); // for patient or general user
+      }
+    }
+  }, [currentUser, loadingUser, router]);
+
+
+    // Show loading UI instead of null
+if (loadingUser || (currentUser && currentUser.role !== "doctor")) {
+  return (
+    <div className="flex justify-center items-center h-screen">
+      <p className="text-lg text-gray-600">Loading...</p>
+    </div>
+  );
+}
+
+
+  
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {

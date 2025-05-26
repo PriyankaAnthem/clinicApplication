@@ -277,7 +277,6 @@ const login = async (email: string, password: string, isAdminLogin = false) => {
   }
 };
 
-
  const loginDoctor = async (email: string, password: string) => {
   if (!email || !password) {
     toast({

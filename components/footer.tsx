@@ -6,8 +6,8 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4">HealthCare Clinic</h3>
-            <p className="text-gray-600 mb-4">Providing quality healthcare services to our community since 2005.</p>
+            <h3 className="text-lg font-semibold mb-4"> Anthem Infotech</h3>
+            <p className="text-gray-600 mb-4">Delivering innovative software solutions to empower businesses since 2011.</p>
           </div>
 
           <div>
@@ -39,10 +39,10 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
             <address className="not-italic text-gray-600">
-              <p>123 Health Avenue</p>
-              <p>Medical District, City 12345</p>
-              <p className="mt-2">Phone: (555) 123-4567</p>
-              <p>Email: info@healthcareclinic.com</p>
+              <p>Sushma Infinium</p>
+              <p>Office 11 on 11th Floor, Zirakpur, Punjab 140603</p>
+              <p className="mt-2">+91 9815-34-0123</p>
+              <p>Email: info@antheminfotech.com </p>
             </address>
           </div>
         </div>

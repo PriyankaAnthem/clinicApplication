@@ -1,7 +1,18 @@
+"use client"
 
+import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { useAppContext } from "@/context/app-context"
+
 
 export function Footer() {
+   const {currentUser} = useAppContext();
+  const router = useRouter();
+
+
+    if (currentUser) return null;
+
+
   return (
     <footer className="bg-gray-100 py-8 mt-12">
       <div className="container mx-auto px-4">

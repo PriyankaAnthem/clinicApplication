@@ -170,7 +170,7 @@ export default function SignupPage() {
           <p className="text-sm text-gray-500">
             Already have an account?{" "}
             <Link href="/auth/login" className="text-blue-600 hover:underline">
-              Log in
+              Sign in
             </Link>
           </p>
         </CardFooter>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { format } from "date-fns"
 import { Clock, User, RefreshCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from 'next/link';
 import {
   Card,
   CardContent,
@@ -83,7 +84,7 @@ useEffect(() => {
     }
   }
 
-  if (userAppointments.length === 0) {
+  /*if (userAppointments.length === 0) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-semibold mb-4">No Appointments</h2>
@@ -93,7 +94,21 @@ useEffect(() => {
         </Button>
       </div>
     )
-  }
+  }*/
+
+
+    
+if (userAppointments.length === 0) {
+  return (
+    <div className="text-center py-12">
+      <h2 className="text-2xl font-semibold mb-4">No Appointments</h2>
+      <p className="text-gray-600 mb-6">You don't have any appointments scheduled.</p>
+      <Button asChild>
+        <Link href="/book">Book an Appointment</Link>
+      </Button>
+    </div>
+  );
+}
 
   return (
     <div>

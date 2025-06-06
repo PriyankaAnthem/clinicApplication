@@ -101,8 +101,8 @@ if (loadingUser || (currentUser && currentUser.role !== "patient")) {
     <div className="container mx-auto py-16 px-4 flex justify-center">
   <Card className="w-full max-w-md">
     <CardHeader>
-      <CardTitle className="text-2xl text-center">Log In</CardTitle>
-      <CardDescription className="text-center">Log in to your HealthCare Clinic account</CardDescription>
+      <CardTitle className="text-2xl text-center">Sign In</CardTitle>
+      <CardDescription className="text-center">Sign in to your HealthCare Clinic account</CardDescription>
     </CardHeader>
     <CardContent>
       <Form {...form}>
@@ -160,7 +160,7 @@ if (loadingUser || (currentUser && currentUser.role !== "patient")) {
           />  
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Log In"}
+            {isLoading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
       </Form>
